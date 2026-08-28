@@ -8,25 +8,27 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { useAuth } from "@/hooks/use-auth";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Page introuvable</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          La page que vous recherchez n’existe pas ou a été déplacée.
         </p>
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            Retour à l’accueil
           </Link>
         </div>
       </div>
@@ -45,10 +47,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Cette page n’a pas pu charger
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Une erreur est survenue de notre côté. Vous pouvez réessayer ou revenir à l’accueil.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -56,15 +58,15 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            Réessayer
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex items-center justify-center rounded-full border border-input bg-background px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            Accueil
           </a>
         </div>
       </div>
@@ -77,19 +79,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Anthologie — Vos albums photos" },
+      { name: "description", content: "Créez et partagez vos albums photos dans un espace calme et élégant." },
+      { name: "author", content: "Anthologie" },
+      { property: "og:title", content: "Anthologie — Vos albums photos" },
+      { property: "og:description", content: "Créez et partagez vos albums photos dans un espace calme et élégant." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      {
+        rel: "preconnect",
+        href: "https://fonts.googleapis.com",
+      },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&display=swap",
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
@@ -102,7 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <head>
         <HeadContent />
       </head>
@@ -119,8 +130,101 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          className: "bg-background text-foreground border border-border shadow-lg",
+        }}
+      />
     </QueryClientProvider>
+  );
+}
+
+function Header() {
+  const { user, loading } = useAuth();
+
+  return (
+    <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <Link to="/" className="font-serif text-2xl tracking-tight text-foreground">
+          Anthologie
+        </Link>
+        <div className="flex items-center gap-8">
+          <Link
+            to="/"
+            className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+          >
+            Accueil
+          </Link>
+          <Link
+            to="/albums"
+            className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+          >
+            Albums
+          </Link>
+          {loading ? null : user ? (
+            <Link
+              to="/albums/new"
+              className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-full ring-1 ring-primary hover:bg-primary/90 transition-colors"
+            >
+              Créer un album
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-full ring-1 ring-primary hover:bg-primary/90 transition-colors"
+            >
+              Se connecter
+            </Link>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="py-16 border-t border-border">
+      <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between gap-12">
+        <div className="max-w-[40ch]">
+          <span className="font-serif text-xl mb-4 block text-foreground">Anthologie</span>
+          <p className="text-sm text-muted-foreground">
+            Conçu pour l’observateur patient. Construisez votre héritage numérique une image à la fois.
+          </p>
+        </div>
+        <div className="flex gap-16">
+          <div className="flex flex-col gap-3">
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+              Navigation
+            </span>
+            <Link to="/" className="text-sm text-foreground/70 hover:text-accent transition-colors">
+              Accueil
+            </Link>
+            <Link to="/albums" className="text-sm text-foreground/70 hover:text-accent transition-colors">
+              Albums
+            </Link>
+          </div>
+          <div className="flex flex-col gap-3">
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
+              Compte
+            </span>
+            <Link to="/auth" className="text-sm text-foreground/70 hover:text-accent transition-colors">
+              Se connecter
+            </Link>
+            <Link to="/albums/new" className="text-sm text-foreground/70 hover:text-accent transition-colors">
+              Créer un album
+            </Link>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 }
