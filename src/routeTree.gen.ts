@@ -10,33 +10,96 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAlbumsRouteImport } from './routes/_authenticated/albums'
+import { Route as AuthenticatedAlbumsIndexRouteImport } from './routes/_authenticated/albums.index'
+import { Route as AuthenticatedAlbumsAlbumIdRouteImport } from './routes/_authenticated/albums.$albumId'
+import { Route as AuthenticatedAlbumsNewRouteImport } from './routes/_authenticated/albums.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAlbumsRoute = AuthenticatedAlbumsRouteImport.update({
+  id: '/albums',
+  path: '/albums',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAlbumsIndexRoute =
+  AuthenticatedAlbumsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAlbumsRoute,
+  } as any)
+const AuthenticatedAlbumsAlbumIdRoute =
+  AuthenticatedAlbumsAlbumIdRouteImport.update({
+    id: '/$albumId',
+    path: '/$albumId',
+    getParentRoute: () => AuthenticatedAlbumsRoute,
+  } as any)
+const AuthenticatedAlbumsNewRoute = AuthenticatedAlbumsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthenticatedAlbumsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/albums': typeof AuthenticatedAlbumsRouteWithChildren
+  '/albums/$albumId': typeof AuthenticatedAlbumsAlbumIdRoute
+  '/albums/new': typeof AuthenticatedAlbumsNewRoute
+  '/albums/': typeof AuthenticatedAlbumsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/albums/$albumId': typeof AuthenticatedAlbumsAlbumIdRoute
+  '/albums/new': typeof AuthenticatedAlbumsNewRoute
+  '/albums': typeof AuthenticatedAlbumsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/albums': typeof AuthenticatedAlbumsRouteWithChildren
+  '/_authenticated/albums/$albumId': typeof AuthenticatedAlbumsAlbumIdRoute
+  '/_authenticated/albums/new': typeof AuthenticatedAlbumsNewRoute
+  '/_authenticated/albums/': typeof AuthenticatedAlbumsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/auth' | '/albums' | '/albums/$albumId' | '/albums/new' | '/albums/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/albums/$albumId' | '/albums/new' | '/albums'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/albums'
+    | '/_authenticated/albums/$albumId'
+    | '/_authenticated/albums/new'
+    | '/_authenticated/albums/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +111,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/albums': {
+      id: '/_authenticated/albums'
+      path: '/albums'
+      fullPath: '/albums'
+      preLoaderRoute: typeof AuthenticatedAlbumsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/albums/': {
+      id: '/_authenticated/albums/'
+      path: '/'
+      fullPath: '/albums/'
+      preLoaderRoute: typeof AuthenticatedAlbumsIndexRouteImport
+      parentRoute: typeof AuthenticatedAlbumsRoute
+    }
+    '/_authenticated/albums/$albumId': {
+      id: '/_authenticated/albums/$albumId'
+      path: '/$albumId'
+      fullPath: '/albums/$albumId'
+      preLoaderRoute: typeof AuthenticatedAlbumsAlbumIdRouteImport
+      parentRoute: typeof AuthenticatedAlbumsRoute
+    }
+    '/_authenticated/albums/new': {
+      id: '/_authenticated/albums/new'
+      path: '/new'
+      fullPath: '/albums/new'
+      preLoaderRoute: typeof AuthenticatedAlbumsNewRouteImport
+      parentRoute: typeof AuthenticatedAlbumsRoute
+    }
   }
 }
 
+interface AuthenticatedAlbumsRouteChildren {
+  AuthenticatedAlbumsAlbumIdRoute: typeof AuthenticatedAlbumsAlbumIdRoute
+  AuthenticatedAlbumsNewRoute: typeof AuthenticatedAlbumsNewRoute
+  AuthenticatedAlbumsIndexRoute: typeof AuthenticatedAlbumsIndexRoute
+}
+
+const AuthenticatedAlbumsRouteChildren: AuthenticatedAlbumsRouteChildren = {
+  AuthenticatedAlbumsAlbumIdRoute: AuthenticatedAlbumsAlbumIdRoute,
+  AuthenticatedAlbumsNewRoute: AuthenticatedAlbumsNewRoute,
+  AuthenticatedAlbumsIndexRoute: AuthenticatedAlbumsIndexRoute,
+}
+
+const AuthenticatedAlbumsRouteWithChildren =
+  AuthenticatedAlbumsRoute._addFileChildren(AuthenticatedAlbumsRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAlbumsRoute: typeof AuthenticatedAlbumsRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAlbumsRoute: AuthenticatedAlbumsRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

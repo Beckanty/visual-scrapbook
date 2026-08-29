@@ -47,7 +47,7 @@ export const createAlbum = createServerFn({ method: "POST" })
       .insert({
         user_id: context.userId,
         title: data.title,
-        description: data.description,
+        description: data.description ?? null,
       })
       .select()
       .single();
@@ -114,7 +114,7 @@ export const createPhoto = createServerFn({ method: "POST" })
         user_id: context.userId,
         storage_path: data.storagePath,
         url: "",
-        caption: data.caption,
+        caption: data.caption ?? null,
       })
       .select()
       .single();
