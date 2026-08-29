@@ -52,9 +52,7 @@ function AlbumDetailPage() {
       for (const file of Array.from(files)) {
         const ext = file.name.split(".").pop() ?? "jpg";
         const path = `${userId}/${albumId}/${crypto.randomUUID()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("photos").upload(path, file, {
-          contentType: file.type || undefined,
-        });
+        const { error: uploadError } = await supabase.storage.from("photos").upload(path, file);
         if (uploadError) throw uploadError;
         await addPhoto({ data: { albumId, storagePath: path } });
         ok += 1;
